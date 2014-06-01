@@ -17,13 +17,20 @@ class GoogleMapsHelper extends AppHelper {
     public $helpers = array('Html', 'Js');
 
     /**
-     * Armazena o endereço utilizado para carregar a API do Google Maps para JavScript.
+     * Google Maps JavaScript API v3 URL
      * @var string
      */
-    protected $_API_URL = "//maps.googleapis.com/maps/api/js";
+    protected $_API_URL = '//maps.googleapis.com/maps/api/js';
 
     /**
-     * Adiciona a tag para carregar o script da API em JavaScript do Google Maps.
+     * JavaScript class name used by this plugin
+     * @var type
+     */
+    protected $_JS_CLASS = 'CakePHPGoogleMaps';
+
+    /**
+     * Creates a <script> tag for loading Maps API. The tag is appended to `$scripts_for_layout` by default, but you
+     * can change this behaviour passing 'inline' => true in the options.
      *
      * @param array $params Parameters added on API URL. Defaults to `array('sensor' => false)`.
      * @param array $options Options used for loading the script (@see HtmlHelper::script). Defaults to
@@ -45,8 +52,8 @@ class GoogleMapsHelper extends AppHelper {
      *
      * - `map` Array of options for the map:
      *     - `latitude` and `longitude` or `center` REQUIRED. Use this option to specify the initial location displayed
-     *     on map. You can use `latitude` and `longitude` separatedly or you can use `center` in the format returned by
-     *     {@link GoogleMapsHelper::latLng}.
+     *     on map. You can use `latitude` and `longitude` separatedly or you can use `center` as an array with keys
+     *     `lat` and `lng` (as accepted by Google Maps API literal LatLng object).
      *     - `zoom` Initial zoom applied on map. Defaults to 8.
      *     - any other options accepted by google.maps.Map constructor.
      * - `div` Attributes used for the <div> which is used for display the map. Will be passed to HtmlHelper::tag.
@@ -71,10 +78,34 @@ class GoogleMapsHelper extends AppHelper {
 
         $this->Html->script('GoogleMaps.googlemaps', array('inline' => false));
 
-        $json = json_encode($options, JSON_FORCE_OBJECT);
-        $script = "CakePHPGoogleMaps.create('{$this->_currentId}', $json)";
+        $json = json_encode($options);
+        // TODO: support for multiple maps
+        $script = "window.map = new {$this->_JS_CLASS}('{$this->_currentId}', $json);";
 
         return $div . $this->_outputScript($script);
+    }
+
+    /**
+     * Catch all method calls and check if they are a call to the JavaScript API.
+     *
+     * This method recognizes calls in the format (add|remove)[itemType]. This allows to execute addMarker, addCircle,
+     * removeRectangle and removeInfoWindow.
+     *
+     * @param string $name Name of method called.
+     * @param array $arguments Arguments passed when calling the method.
+     * @return mixed
+     */
+    public function __call($name, $arguments) {
+        if (preg_match('/([^A-Z]*)(.*)/', $name, $matches)) {
+            list(,$method,$type) = $matches;
+
+            if (in_array($method, array('add', 'remove'))) {
+                $args = $this->_parseJsArguments($arguments);
+                return $this->_outputScript("window.map.{$method}('{$type}', $args);");
+            }
+        }
+
+        parent::__call($name, $arguments);
     }
 
     /**
@@ -88,5 +119,20 @@ class GoogleMapsHelper extends AppHelper {
             return $this->Js->buffer($code);
         }
         return $this->Html->scriptBlock($code);
+    }
+
+    /**
+     * Format list of arguments to be passed to a JavaScript call.
+     *
+     * @param array $arguments List of arguments.
+     * @return string A string of all arguments separated by `,` ready to be passed as arguments to a JavaScript
+     *   function call.
+     */
+    private function _parseJsArguments($arguments) {
+        foreach ($arguments as &$arg) {
+            $arg = $this->Js->object($arg);
+        }
+
+        return implode(',', $arguments);
     }
 }

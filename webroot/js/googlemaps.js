@@ -1,38 +1,67 @@
-(function() {
+/**
+ * @class CakePHPGoogleMaps
+ * @constructor
+ * @property {google.maps.Map} map Reference to map object created
+ * @property {object} items Set of itens that exists on the map.
+ */
+window.CakePHPGoogleMaps = function(id, options) {
+    this.map = new google.maps.Map(document.getElementById(id), options);
+    this.items = {};
+};
 
-    // =========================================================================
-    // Auxiliary functions
+/**
+ * Add a item on the map.
+ *
+ * This method can create many type of objects that exists in Google Maps API. Anything in `google.maps` that is a
+ * constructor and accepts one object of options as parameter can be used. This includes Marker, InfoWindow, Polygon,
+ * Circle, ...
+ *
+ * @param {string} type Type of item to be created and added to the map ({@see CakePHPGoogleMaps.itemTypes}).
+ * @param {string} id Identifier of the created item. Will be saved and can be used to operate over it later.
+ * @param {object} options Object of options to be passed to
+ * @returns {boolean} If item was created and added to the map or not.
+ */
+CakePHPGoogleMaps.prototype.add = function(type, id, options) {
+    if (typeof google.maps[type] !== 'function') {
+        return false;
+    }
 
-    //--------------------------------------------------------------------------
-    // check if Google Maps API is loaded
-    var __isLoaded = false;
-    var isApiLoaded = function() {
-        return (__isLoaded || (__isLoaded = (typeof window.google !== 'undefined'
-                && typeof window.google.maps !== 'undefined')));
-    };
+    var self = this,
+        items = self.items;
 
-    // =========================================================================
-    // Public API
+    options.map = this.map;
+    items[type] = items[type] || {};
 
-    window.CakePHPGoogleMaps = {};
+    try {
+        items[type][id] = new google.maps[type](options);
+    }
+    catch (e) {
+        return false;
+    }
 
-    /**
-     * Create a new map using specified options and div ID.
-     *
-     * @param {string} id DOM ID of an existing <div> node.
-     * @param {object} options Options passed to constructor.
-     * @returns {google.maps.Map}
-     */
-    CakePHPGoogleMaps.create = function(id, options) {
-        if (!isApiLoaded()) {
-            throw new Error('Google Maps was not loaded!');
+    return true;
+};
+
+/**
+ * Removes a item previously created with method `add`.
+ *
+ * @param {string} type Item type.
+ * @param {string} id Item identifier.
+ * @returns {boolean} If it was removed or not.
+ */
+CakePHPGoogleMaps.prototype.remove = function(type, id) {
+    var items = this.items;
+
+    if (typeof items[type] === 'object') {
+        if (typeof items[type][id].setVisible === 'function') {
+            items[type][id].setVisible(false);
         }
-
-        if (typeof options === 'string') {
-            options = JSON.parse(options);
+        if (typeof items[type][id].setMap === 'function') {
+            items[type][id].setMap(null);
         }
+        delete items[type][id];
+        return true;
+    }
 
-        return new google.maps.Map(document.getElementById(id), options);
-    };
-
-})();
+    return false;
+};
