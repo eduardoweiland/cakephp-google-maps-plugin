@@ -74,7 +74,19 @@ class GoogleMapsHelper extends AppHelper {
         $json = json_encode($options, JSON_FORCE_OBJECT);
         $script = "CakePHPGoogleMaps.create('{$this->_currentId}', $json)";
 
-        return $div . $this->Html->scriptBlock($script);
+        return $div . $this->_outputScript($script);
     }
 
+    /**
+     * If JavaScript buffering is enabled, append the script on the buffer, or if it is disabled return it within
+     * script tags.
+     *
+     * @param string $code JavaScript code
+     */
+    private function _outputScript($code) {
+        if ($this->Js->bufferScripts) {
+            return $this->Js->buffer($code);
+        }
+        return $this->Html->scriptBlock($code);
+    }
 }
