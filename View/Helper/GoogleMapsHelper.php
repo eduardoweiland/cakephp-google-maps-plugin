@@ -28,12 +28,14 @@ class GoogleMapsHelper extends AppHelper {
      * @param array $params Parameters added on API URL. Defaults to `array('sensor' => false)`.
      * @param array $options Options used for loading the script (@see HtmlHelper::script). Defaults to
      *        `array('inline' => false)`.
+     * @return mixed Value returned by {@link HtmlHelper::script}.
+     * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::script
      * @link https://developers.google.com/maps/documentation/javascript/tutorial#Loading_the_Maps_API
      */
     public function loadAPI($params = array(), $options = array()) {
         $params = array_merge(array('sensor' => false), $params);
         $options = array_merge(array('inline' => false), $options);
-        $this->Html->script($this->_API_URL . '?' . http_build_query($params), $options);
+        return $this->Html->script($this->_API_URL . '?' . http_build_query($params), $options);
     }
 
     /**
