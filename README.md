@@ -18,7 +18,7 @@ To install this plugin using Composer, you just need to add this plugin in the `
 
 ```json
 "require": {
-    "duduweiland/cakephp-google-maps-plugin": "dev-master"
+    "eduardoweiland/cakephp-google-maps-plugin": "dev-master"
 }
 ```
 
