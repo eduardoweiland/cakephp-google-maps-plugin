@@ -1,9 +1,9 @@
 {
-    "name": "duduweiland/cakephp-google-maps-plugin",
+    "name": "eduardoweiland/cakephp-google-maps-plugin",
     "type": "cakephp-plugin",
     "description": "CakePHP Google Maps Plugin",
     "keywords": ["cakephp", "google", "maps"],
-    "homepage": "http://github.com/duduweiland/cakephp-google-maps-plugin",
+    "homepage": "http://github.com/eduardoweiland/cakephp-google-maps-plugin",
     "license": "MIT",
     "authors": [
         {
@@ -12,9 +12,9 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/duduweiland/cakephp-google-maps-plugin/issues",
-        "wiki": "https://github.com/duduweiland/cakephp-google-maps-plugin/wiki",
-        "source": "https://github.com/duduweiland/cakephp-google-maps-plugin"
+        "issues": "https://github.com/eduardoweiland/cakephp-google-maps-plugin/issues",
+        "wiki": "https://github.com/eduardoweiland/cakephp-google-maps-plugin/wiki",
+        "source": "https://github.com/eduardoweiland/cakephp-google-maps-plugin"
     },
     "require": {
         "php": ">=5.3.0",
